@@ -7,6 +7,15 @@ case class Leaf[T](label: T) extends Tree[T]{
 	override def toString()="Leaf("+label+")"
 } 
 
+abstract class OTree[T <: Ordered[T]]
+case class ONode[T <: Ordered[T]](v:T, l:OTree[T], r:OTree[T]) extends OTree[T]
+case class OLeaf[T <: Ordered[T]](v:T) extends OTree[T]
+
+case class O(n:Int) extends Ordered[O] {
+	def compare(that: O) =  this.n - that.n
+	override def toString()="MAX:"+n.toString()
+}
+
 trait Addable[T]{
 	def +(x:T):T
 }
@@ -102,8 +111,34 @@ def test() {
 //     println(treeMap(fca,myATree))
 //     contravariance not reserved on the input side
 //     since C<:A
-  }
+ }
+def max[T <: Ordered[T]](a:T,b:T,c:T):T={
+	
+  if (a.compare(b)<0){
+    if (b.compare(c)<0){
+    	return c
+    }
+ 	else {return b}
+    }
+	
+  else{
+	if (c.compare(a)<0){
+    	return a
+    }
+ 
+	else {c}
+   }
+}
+
+def maxlabel[T <: Ordered[T]](tree:OTree[T]):T=tree match{
+	case ONode(v,l:OTree[T],r:OTree[T])=> max(v,maxlabel[T](l),maxlabel[T](r))
+	case OLeaf(v)=> v
+}
+ 
   def main(args: Array[String]){
 	  test();
+	val _oTree: OTree[O] = ONode(new O(4),ONode(new O(2),OLeaf(new O(1)),OLeaf(new O(3))),  		               
+  							ONode(new O(6), OLeaf(new O(9)), OLeaf(new O(7))))   
+	println(maxlabel(_oTree))	
   }
 }
